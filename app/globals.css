@@ -3,17 +3,27 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* Prepico Palette */
+  --prepico-blue: #012987;
+  --prepico-gradient-start: #2D5AA6;
+  --prepico-gradient-end: #6FCE8D;
+  --prepico-bg-light: #E8F2FF;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-prepico-blue: var(--prepico-blue);
+  --color-prepico-teal: var(--prepico-gradient-end);
+  --color-prepico-light: var(--prepico-bg-light);
+  --font-sans: var(--font-poppins);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
+   /* Keeping light mode defaults for now as requested design is primarily light/clean */
+   /* But ensuring readability if system is dark */
     --background: #0a0a0a;
     --foreground: #ededed;
   }
@@ -22,5 +32,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
