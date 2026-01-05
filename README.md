@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Prepico Blogs
 
-## Getting Started
+A modern, production-ready blog platform built for Prepico, featuring a custom block-based editor, admin dashboard, and dynamic public frontend.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Public Interface
+- **Dynamic Blog Listing**: Fetches and displays latest posts from Supabase.
+- **Rich Content Rendering**: Recursive block renderer supporting:
+  - Text & Headings (with dark, high-contrast typography)
+  - Images & Videos
+  - Nested Layouts (2-Column Rows)
+  - Bullet Lists
+- **Responsive Design**: Mobile-first layout using Tailwind CSS.
+- **Custom Branding**: Prepico theme colors and typography (Poppins).
+
+### Admin Dashboard
+- **Content Management**: Create, Edit, and Delete blog posts.
+- **Block-Based Editor**:
+  - Drag-and-drop concepts (click to add).
+  - Support for complex nested structures.
+  - **Media Upload**: Direct integration with Supabase Storage for images and thumbnails.
+- **Real-time Preview**: What you see is what you get.
+
+## 🛠 Tech Stack
+
+- **Frontend**: Next.js 14 (App Router), React, TypeScript
+- **Styling**: Tailwind CSS, Lucide React (Icons)
+- **Backend**: Supabase (PostgreSQL, Storage, Auth/RLS)
+- **Deployment**: Vercel ready
+
+## 📦 Project Structure
+
+```
+├── app/
+│   ├── admin/          # Admin dashboard & editor routes
+│   ├── blog/[id]/      # Single blog post view
+│   ├── page.tsx        # Public landing page
+│   └── layout.tsx      # Root layout with Prepico branding
+├── components/
+│   ├── admin/          # Admin-specific components (tables, layout)
+│   ├── blog/           # Public blog components (cards, renderers)
+│   ├── editor/         # The core Block Editor engine
+│   └── ui/             # Reusable UI kit (Button, Input, Card)
+├── lib/
+│   └── supabase.ts     # Supabase client configuration
+└── types/              # TypeScript definitions for Block/Post structure
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔧 Setup & Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1.  **Clone the repository**:
+    ```bash
+    git clone <repository-url>
+    cd prepico-blogs
+    ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2.  **Install dependencies**:
+    ```bash
+    npm install
+    ```
 
-## Learn More
+3.  **Configure Environment Variables**:
+    Create a `.env.local` file with your Supabase credentials:
+    ```env
+    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+    ```
 
-To learn more about Next.js, take a look at the following resources:
+4.  **Run Development Server**:
+    ```bash
+    npm run dev
+    ```
+    Open [http://localhost:3000](http://localhost:3000).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📄 Database Schema
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The project uses a simple but flexible schema in Supabase:
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+-   **`posts` Table**: Stores blog metadata and the JSONB `content` structure.
+-   **`images` Bucket**: Stores uploaded assets.

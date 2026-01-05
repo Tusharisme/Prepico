@@ -14,8 +14,10 @@ interface PageProps {
 }
 
 // Generate metadata dynamically
+// Generate metadata dynamically
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { data: post } = await supabase.from('posts').select('title, description').eq('id', params.id).single()
+  const { id } = await params
+  const { data: post } = await supabase.from('posts').select('title, description').eq('id', id).single()
   
   if (!post) {
       return {
@@ -30,10 +32,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
+  const { id } = await params
   const { data: post } = await supabase
     .from('posts')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (!post) {

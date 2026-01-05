@@ -3,7 +3,7 @@ import { cn } from '@/components/ui/Button'
 
 export function RenderBlock({ block }: { block: Block }) {
   if (block.type === 'paragraph') {
-    return <p className="text-gray-700 leading-relaxed mb-4 text-lg">{block.content}</p>
+    return <p className="text-gray-900 leading-relaxed mb-4 text-lg">{block.content}</p>
   }
 
   if (block.type === 'heading') {
@@ -12,7 +12,7 @@ export function RenderBlock({ block }: { block: Block }) {
 
   if (block.type === 'list') {
       return (
-          <ul className="list-disc pl-6 mb-4 space-y-2 text-gray-700 text-lg">
+          <ul className="list-disc pl-6 mb-4 space-y-2 text-gray-900 text-lg">
              <li>{block.content}</li>
           </ul>
       )

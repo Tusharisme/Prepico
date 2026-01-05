@@ -8,9 +8,14 @@ import { Card } from '@/components/ui/Card'
 import { Plus, Save, Layout, Type, Image as ImageIcon, Video, List, Columns } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
-export default function BlogEditor() {
+interface BlogEditorProps {
+    initialPost?: BlogPost
+    isEditing?: boolean
+}
+
+export default function BlogEditor({ initialPost, isEditing = false }: BlogEditorProps) {
   const [loading, setLoading] = useState(false)
-  const [post, setPost] = useState<BlogPost>({
+  const [post, setPost] = useState<BlogPost>(initialPost || {
     title: '',
     description: '',
     thumbnail_url: '',
@@ -76,13 +81,26 @@ export default function BlogEditor() {
   const savePost = async () => {
     setLoading(true)
     try {
-      const { error } = await supabase.from('posts').insert({
-        title: post.title,
-        description: post.description,
-        thumbnail_url: post.thumbnail_url,
-        content: post.content
-      })
-      if (error) throw error
+      let result;
+      if (isEditing && post.id) {
+          const { error } = await supabase.from('posts').update({
+            title: post.title,
+            description: post.description,
+            thumbnail_url: post.thumbnail_url,
+            content: post.content,
+            updated_at: new Date().toISOString()
+          }).eq('id', post.id)
+          if (error) throw error
+      } else {
+          const { error } = await supabase.from('posts').insert({
+            title: post.title,
+            description: post.description,
+            thumbnail_url: post.thumbnail_url,
+            content: post.content
+          })
+          if (error) throw error
+      }
+      
       alert('Post saved successfully!')
     } catch (e) {
       console.error(e)
@@ -92,13 +110,37 @@ export default function BlogEditor() {
     }
   }
 
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+        setLoading(true)
+        const fileExt = file.name.split('.').pop()
+        const fileName = `thumbnail-${Math.random()}.${fileExt}`
+        const filePath = `${fileName}`
+
+        const { error: uploadError } = await supabase.storage.from('images').upload(filePath, file)
+
+        if (uploadError) throw uploadError
+        
+        const { data } = supabase.storage.from('images').getPublicUrl(filePath)
+        updateMetadata('thumbnail_url', data.publicUrl)
+    } catch (error) {
+        console.error('Error uploading thumbnail:', error)
+        alert('Error uploading thumbnail')
+    } finally {
+        setLoading(false)
+    }
+  }
+
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-20">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Create New Blog Post</h2>
+        <h2 className="text-2xl font-bold text-gray-900">{isEditing ? 'Edit Blog Post' : 'Create New Blog Post'}</h2>
         <Button onClick={savePost} disabled={loading}>
           <Save className="h-4 w-4 mr-2" />
-          {loading ? 'Saving...' : 'Publish Post'}
+          {loading ? 'Saving...' : (isEditing ? 'Update Post' : 'Publish Post')}
         </Button>
       </div>
 
@@ -122,11 +164,31 @@ export default function BlogEditor() {
         </div>
         <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Thumbnail URL</label>
-             <Input 
-                value={post.thumbnail_url} 
-                onChange={(e) => updateMetadata('thumbnail_url', e.target.value)}
-                placeholder="https://..." 
-          />
+            <div className="flex gap-2">
+                 <Input 
+                    value={post.thumbnail_url} 
+                    onChange={(e) => updateMetadata('thumbnail_url', e.target.value)}
+                    placeholder="https://..." 
+                    className="flex-1"
+                />
+                <div className="relative">
+                    <Button variant="secondary" size="md" type="button" className="relative cursor-pointer">
+                        Upload
+                        <input 
+                            type="file" 
+                            className="absolute inset-0 opacity-0 cursor-pointer" 
+                            accept="image/*"
+                            onChange={handleThumbnailUpload}
+                        />
+                    </Button>
+                </div>
+            </div>
+             {post.thumbnail_url && (
+                <div className="mt-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={post.thumbnail_url} alt="Thumbnail Preview" className="h-32 rounded-lg object-cover border" />
+                </div>
+             )}
         </div>
       </Card>
 
@@ -144,6 +206,30 @@ export default function BlogEditor() {
                  />
              ))}
         </div>
+
+        {/* Add Block Controls */}
+        <div className="flex flex-wrap gap-2 p-4 border-2 border-dashed border-gray-200 rounded-lg justify-center bg-gray-50">
+            <Button variant="secondary" size="sm" onClick={() => addBlock('paragraph')}>
+                <Type className="h-4 w-4 mr-2" /> Text
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => addBlock('heading')}>
+                <Type className="h-4 w-4 mr-2 font-bold" /> Heading
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => addBlock('image')}>
+                <ImageIcon className="h-4 w-4 mr-2" /> Image
+            </Button>
+             <Button variant="secondary" size="sm" onClick={() => addBlock('video')}>
+                <Video className="h-4 w-4 mr-2" /> Video
+            </Button>
+             <Button variant="secondary" size="sm" onClick={() => addBlock('list')}>
+                <List className="h-4 w-4 mr-2" /> List
+            </Button>
+            <div className="w-px h-6 bg-gray-300 mx-2" />
+             <Button variant="secondary" size="sm" onClick={() => addBlock('row')}>
+                <Columns className="h-4 w-4 mr-2" /> 2-Col Row
+            </Button>
+        </div>
+
       </div>
     </div>
   )
@@ -206,7 +292,7 @@ function BlockRenderer({ block, onUpdate, onAddChild }: { block: Block, onUpdate
                     value={block.content} 
                     onChange={(e) => onUpdate(block.id, e.target.value)} 
                     placeholder="Heading..."
-                    className="font-bold text-xl border-none shadow-none focus-visible:ring-0 px-0 h-auto" 
+                    className="font-bold text-xl border-none shadow-none focus-visible:ring-0 px-0 h-auto text-gray-900" 
                 />
             )}
             
@@ -215,7 +301,7 @@ function BlockRenderer({ block, onUpdate, onAddChild }: { block: Block, onUpdate
                     value={block.content}
                     onChange={(e) => onUpdate(block.id, e.target.value)}
                     placeholder="Type your text here..."
-                    className="w-full resize-y min-h-[80px] p-2 rounded-md border-transparent hover:border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-transparent"
+                    className="w-full resize-y min-h-[80px] p-2 rounded-md border-transparent hover:border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-transparent text-gray-900"
                  />
             )}
             
@@ -226,7 +312,7 @@ function BlockRenderer({ block, onUpdate, onAddChild }: { block: Block, onUpdate
                         value={block.content}
                         onChange={(e) => onUpdate(block.id, e.target.value)}
                         placeholder="List item..."
-                        className="w-full resize-none h-[40px] p-1 rounded-md border-transparent hover:border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-transparent"
+                        className="w-full resize-none h-[40px] p-1 rounded-md border-transparent hover:border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-transparent text-gray-900"
                      />
                  </div>
             )}
