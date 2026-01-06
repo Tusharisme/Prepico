@@ -3,14 +3,17 @@ import { cn } from '@/components/ui/Button'
 
 export function RenderBlock({ block }: { block: Block }) {
   if (block.type === 'paragraph') {
+    if (!block.content) return null
     return <p className="text-gray-900 leading-relaxed mb-4 text-lg">{block.content}</p>
   }
 
   if (block.type === 'heading') {
+    if (!block.content) return null
     return <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4 border-l-4 border-[var(--prepico-gradient-end)] pl-4">{block.content}</h2>
   }
 
   if (block.type === 'list') {
+      if (!block.content) return null
       return (
           <ul className="list-disc pl-6 mb-4 space-y-2 text-gray-900 text-lg">
              <li>{block.content}</li>
@@ -19,6 +22,7 @@ export function RenderBlock({ block }: { block: Block }) {
   }
 
   if (block.type === 'image') {
+    if (!block.content) return null
     return (
       <div className="my-8 rounded-xl overflow-hidden shadow-lg border border-gray-100">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -32,8 +36,7 @@ export function RenderBlock({ block }: { block: Block }) {
   }
 
   if (block.type === 'video') {
-    // Simple video embed (assuming mp4 url or similar, for youtube we need parsing)
-    // For this demo, assuming direct URL or just simple video tag
+    if (!block.content) return null
     return (
       <div className="my-8 rounded-xl overflow-hidden shadow-lg border border-gray-100 aspect-video bg-black">
         <video src={block.content} controls className="w-full h-full" />

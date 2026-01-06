@@ -291,6 +291,7 @@ function BlockRenderer({ block, onUpdate, onAddChild }: { block: Block, onUpdate
                 <Input 
                     value={block.content} 
                     onChange={(e) => onUpdate(block.id, e.target.value)} 
+                    onClick={(e) => e.stopPropagation()}
                     placeholder="Heading..."
                     className="font-bold text-xl border-none shadow-none focus-visible:ring-0 px-0 h-auto text-gray-900" 
                 />
@@ -300,6 +301,7 @@ function BlockRenderer({ block, onUpdate, onAddChild }: { block: Block, onUpdate
                  <textarea 
                     value={block.content}
                     onChange={(e) => onUpdate(block.id, e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
                     placeholder="Type your text here..."
                     className="w-full resize-y min-h-[80px] p-2 rounded-md border-transparent hover:border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-transparent text-gray-900"
                  />
@@ -311,6 +313,7 @@ function BlockRenderer({ block, onUpdate, onAddChild }: { block: Block, onUpdate
                     <textarea 
                         value={block.content}
                         onChange={(e) => onUpdate(block.id, e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
                         placeholder="List item..."
                         className="w-full resize-none h-[40px] p-1 rounded-md border-transparent hover:border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-transparent text-gray-900"
                      />
